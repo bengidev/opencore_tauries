@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { findInkTop, getBubbleBottomOffset } from "./hero-bounds";
-import { OnboardingHero } from "./OnboardingHero";
+import { OnboardingHero, type OnboardingHeroHandle } from "./OnboardingHero";
 import { SPEECH_LINES, SpeechBubble } from "./SpeechBubble";
 import { advanceSpeech, type OnboardingSpeechState } from "./speech-rotation";
+import { usePrefersReducedMotion } from "./use-prefers-reduced-motion";
 
 export const SPEECH_ROTATION_DELAY_MS = 5000;
 
@@ -11,7 +12,13 @@ const BOUNDS_SAMPLE_SIZE = 128;
 const BUBBLE_GAP = 20;
 const BUBBLE_TAIL_DEPTH = 9;
 
+function isActivationKey(event: KeyboardEvent) {
+  return event.key === "Enter" || event.key === " ";
+}
+
 export function HeroStage() {
+  const reducedMotion = usePrefersReducedMotion();
+  const heroRef = useRef<OnboardingHeroHandle>(null);
   const [speech, setSpeech] = useState<OnboardingSpeechState>({
     index: 0,
     revision: 0,
@@ -30,6 +37,8 @@ export function HeroStage() {
   }, [speech.revision]);
 
   useLayoutEffect(() => {
+    if (reducedMotion) return;
+
     const figure = figureRef.current;
     if (!figure) return;
     const canvas = figure.querySelector("canvas");
@@ -43,9 +52,10 @@ export function HeroStage() {
     let frame = 0;
     let lastSample = Number.NEGATIVE_INFINITY;
     let disposed = false;
+
     const measure = (time: number) => {
       if (disposed) return;
-      if (time - lastSample >= 16) {
+      if (!document.hidden && time - lastSample >= 16) {
         const box = canvas.getBoundingClientRect();
         context.clearRect(0, 0, BOUNDS_SAMPLE_SIZE, BOUNDS_SAMPLE_SIZE);
         context.drawImage(canvas, 0, 0, BOUNDS_SAMPLE_SIZE, BOUNDS_SAMPLE_SIZE);
@@ -64,15 +74,27 @@ export function HeroStage() {
       }
       frame = window.requestAnimationFrame(measure);
     };
+
+    const onVisibilityChange = () => {
+      if (!document.hidden) lastSample = Number.NEGATIVE_INFINITY;
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
     frame = window.requestAnimationFrame(measure);
+
     return () => {
       disposed = true;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [reducedMotion]);
 
   const handleHeroTap = () => {
     setSpeech((current) => advanceSpeech({ state: current, reason: "tap", lines: SPEECH_LINES }));
+  };
+
+  const activateHero = () => {
+    heroRef.current?.activate();
   };
 
   return (
@@ -83,13 +105,24 @@ export function HeroStage() {
           revision={speech.revision}
           anchor={speech.anchorFraction}
         />
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={0}
           className="bot-button"
-          aria-label="Assistant avatar. Click to change message"
+          aria-label="Assistant avatar. Activate to change message"
+          onClick={activateHero}
+          onKeyDown={(event) => {
+            if (!isActivationKey(event)) return;
+            event.preventDefault();
+            activateHero();
+          }}
         >
-          <OnboardingHero onTap={handleHeroTap} autoMotionRevision={speech.autoMotionRevision} />
-        </button>
+          <OnboardingHero
+            ref={heroRef}
+            onTap={handleHeroTap}
+            autoMotionRevision={speech.autoMotionRevision}
+          />
+        </div>
       </div>
     </div>
   );

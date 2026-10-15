@@ -44,7 +44,7 @@ export function SpeechBubble({ message, revision, anchor }: SpeechBubbleProps) {
       }}
     >
       <div className="speech-bubble">
-        <p className="speech-text">
+        <p className="speech-text" aria-live="polite" aria-atomic="true">
           {words.slice(0, visible).map((word, index) => (
             <span key={`${revision}-${index}`}>
               {index > 0 && " "}

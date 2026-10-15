@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { BotAvatar } from "bot-avatars";
 
 import {
@@ -8,29 +8,21 @@ import {
   randomizeOnboardingHero,
   tapMotionDurationSeconds,
 } from "./hero-bot";
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
+import { usePrefersReducedMotion } from "./use-prefers-reduced-motion";
 
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setReduced(media.matches);
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
-  }, []);
+export type OnboardingHeroHandle = {
+  /** User activation: advance speech and play hop/spin-hop motion. */
+  activate: () => void;
+};
 
-  return reduced;
-}
-
-/** Crisp hero whose shape and jump behavior change with each tap. */
-export function OnboardingHero({
-  onTap,
-  autoMotionRevision,
-}: {
-  onTap: () => void;
-  autoMotionRevision: number;
-}) {
+/** Fabric ghost hero whose jump behavior changes with each activation. */
+export const OnboardingHero = forwardRef<
+  OnboardingHeroHandle,
+  {
+    onTap: () => void;
+    autoMotionRevision: number;
+  }
+>(function OnboardingHero({ onTap, autoMotionRevision }, ref) {
   const reducedMotion = usePrefersReducedMotion();
   const [variant, setVariant] = useState(() => randomizeOnboardingHero("ghost"));
   const [motionLocked, setMotionLocked] = useState(false);
@@ -38,8 +30,7 @@ export function OnboardingHero({
   const lastAutoMotionRevision = useRef(autoMotionRevision);
   const unlockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const avatar = useRef<HTMLCanvasElement | null>(null);
-  const suppressAutomaticClick = useRef(false);
-  const lastMotionRevision = useRef(autoMotionRevision);
+  const skipUserActivate = useRef(false);
 
   useEffect(
     () => () => {
@@ -47,6 +38,13 @@ export function OnboardingHero({
     },
     [],
   );
+
+  const pokeAvatar = useCallback(() => {
+    if (reducedMotion || !avatar.current) return;
+    skipUserActivate.current = true;
+    avatar.current.click();
+    skipUserActivate.current = false;
+  }, [reducedMotion]);
 
   const playMotion = useCallback(() => {
     if (motionLock.current) return;
@@ -66,27 +64,30 @@ export function OnboardingHero({
     }, Math.ceil(tapMotionDurationSeconds(variant, next.speed) * 1000) + 50);
   }, [reducedMotion, variant]);
 
+  const activate = useCallback(
+    (options?: { poke?: boolean }) => {
+      if (motionLock.current) return;
+      onTap();
+      playMotion();
+      if (options?.poke ?? true) pokeAvatar();
+    },
+    [onTap, playMotion, pokeAvatar],
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      activate: () => activate({ poke: true }),
+    }),
+    [activate],
+  );
+
   useEffect(() => {
     if (autoMotionRevision === lastAutoMotionRevision.current) return;
     lastAutoMotionRevision.current = autoMotionRevision;
     playMotion();
-  }, [autoMotionRevision, playMotion]);
-
-  useEffect(() => {
-    if (autoMotionRevision === lastMotionRevision.current) return;
-    lastMotionRevision.current = autoMotionRevision;
-    if (!reducedMotion && autoMotionRevision > 0 && avatar.current) {
-      suppressAutomaticClick.current = true;
-      avatar.current.click();
-      suppressAutomaticClick.current = false;
-    }
-  }, [autoMotionRevision, reducedMotion]);
-
-  const handleTap = () => {
-    if (motionLock.current) return;
-    onTap();
-    playMotion();
-  };
+    pokeAvatar();
+  }, [autoMotionRevision, playMotion, pokeAvatar]);
 
   return (
     <BotAvatar
@@ -101,10 +102,11 @@ export function OnboardingHero({
       className="bot"
       interactive={ONBOARDING_HERO_BOT.interactive && !motionLocked}
       aria-hidden="true"
-      onClick={() => {
-        if (suppressAutomaticClick.current) return;
-        handleTap();
+      onClick={(event) => {
+        event.stopPropagation();
+        if (skipUserActivate.current) return;
+        activate({ poke: false });
       }}
     />
   );
-}
+});
