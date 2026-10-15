@@ -1,65 +1,59 @@
-import { spawn } from "node:child_process";
+import { execFile } from "node:child_process";
+import net from "node:net";
+import { promisify } from "node:util";
 
 const PORT = 1420;
-const LSOF_TIMEOUT_MS = 2500;
+const LSOF_TIMEOUT_MS = 2000;
 
-function listPortPidsUnix(port) {
+const execFileAsync = promisify(execFile);
+
+function isPortFree(port) {
   return new Promise((resolve) => {
-    const child = spawn("lsof", ["-ti", `tcp:${port}`], {
-      stdio: ["ignore", "pipe", "ignore"],
-    });
-    let stdout = "";
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-    });
-    const timer = setTimeout(() => {
-      child.kill("SIGKILL");
-      resolve("");
-    }, LSOF_TIMEOUT_MS);
-    child.on("close", () => {
-      clearTimeout(timer);
-      resolve(stdout);
-    });
-    child.on("error", () => {
-      clearTimeout(timer);
-      resolve("");
+    const server = net.createServer();
+    server.unref();
+    server.once("error", () => resolve(false));
+    server.listen(port, "127.0.0.1", () => {
+      server.close(() => resolve(true));
     });
   });
 }
 
-function listPortPidsWindows(port) {
-  return new Promise((resolve) => {
-    const child = spawn(
+async function listPortPidsUnix(port) {
+  try {
+    const { stdout } = await execFileAsync("lsof", ["-nP", `-iTCP:${port}`, "-sTCP:LISTEN", "-t"], {
+      timeout: LSOF_TIMEOUT_MS,
+      killSignal: "SIGKILL",
+    });
+    return stdout;
+  } catch {
+    return "";
+  }
+}
+
+async function listPortPidsWindows(port) {
+  try {
+    const { stdout } = await execFileAsync(
       "powershell",
       [
         "-NoProfile",
         "-Command",
         `Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess`,
       ],
-      { stdio: ["ignore", "pipe", "ignore"] },
+      { timeout: LSOF_TIMEOUT_MS, killSignal: "SIGKILL" },
     );
-    let stdout = "";
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-    });
-    const timer = setTimeout(() => {
-      child.kill("SIGKILL");
-      resolve("");
-    }, LSOF_TIMEOUT_MS);
-    child.on("close", () => {
-      clearTimeout(timer);
-      resolve(stdout);
-    });
-    child.on("error", () => {
-      clearTimeout(timer);
-      resolve("");
-    });
-  });
+    return stdout;
+  } catch {
+    return "";
+  }
 }
 
 async function listPortPids(port) {
   if (process.platform === "win32") return listPortPidsWindows(port);
   return listPortPidsUnix(port);
+}
+
+if (await isPortFree(PORT)) {
+  process.exit(0);
 }
 
 const stdout = await listPortPids(PORT);
@@ -68,7 +62,7 @@ const pids = stdout
   .split(/\s+/)
   .filter(Boolean)
   .map((value) => Number(value))
-  .filter((pid) => Number.isFinite(pid) && pid > 0);
+  .filter((pid) => Number.isFinite(pid) && pid > 0 && pid !== process.pid);
 
 for (const pid of pids) {
   try {
