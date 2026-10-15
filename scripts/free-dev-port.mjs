@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 const PORT = 1420;
 const LSOF_TIMEOUT_MS = 2500;
 
-function listPortPids(port) {
+function listPortPidsUnix(port) {
   return new Promise((resolve) => {
     const child = spawn("lsof", ["-ti", `tcp:${port}`], {
       stdio: ["ignore", "pipe", "ignore"],
@@ -27,8 +27,39 @@ function listPortPids(port) {
   });
 }
 
-if (process.platform === "win32") {
-  process.exit(0);
+function listPortPidsWindows(port) {
+  return new Promise((resolve) => {
+    const child = spawn(
+      "powershell",
+      [
+        "-NoProfile",
+        "-Command",
+        `Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess`,
+      ],
+      { stdio: ["ignore", "pipe", "ignore"] },
+    );
+    let stdout = "";
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk;
+    });
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      resolve("");
+    }, LSOF_TIMEOUT_MS);
+    child.on("close", () => {
+      clearTimeout(timer);
+      resolve(stdout);
+    });
+    child.on("error", () => {
+      clearTimeout(timer);
+      resolve("");
+    });
+  });
+}
+
+async function listPortPids(port) {
+  if (process.platform === "win32") return listPortPidsWindows(port);
+  return listPortPidsUnix(port);
 }
 
 const stdout = await listPortPids(PORT);
