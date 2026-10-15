@@ -6,6 +6,22 @@
     <meta name="theme-color" content="#f5f5f5" />
     <meta name="color-scheme" content="light dark" />
     <title>OpenCore</title>
+    <script>
+      (() => {
+        const KEY = "opencore-theme";
+        const stored = localStorage.getItem(KEY);
+        const theme =
+          stored === "light" || stored === "dark"
+            ? stored
+            : window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = theme === "dark" ? "#000000" : "#f5f5f5";
+      })();
+    </script>
   </head>
 
   <body>

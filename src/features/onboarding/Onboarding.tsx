@@ -95,11 +95,11 @@ export default function Onboarding() {
           <p className="intro">
             OpenCore keeps your AI tools close, local, and ready when the work gets serious.
           </p>
-          <div className="feature-list" aria-label="OpenCore features">
-            <div className="feature-row">One focused workspace</div>
-            <div className="feature-row">Models on your terms</div>
-            <div className="feature-row">Signal without the noise</div>
-          </div>
+          <ul className="feature-list" aria-label="OpenCore features">
+            <li className="feature-row">One focused workspace</li>
+            <li className="feature-row">Models on your terms</li>
+            <li className="feature-row">Signal without the noise</li>
+          </ul>
         </div>
 
         <HeroStage />
@@ -108,7 +108,12 @@ export default function Onboarding() {
       <footer className="bottombar">
         <span className="action-status" aria-live="polite">{isReady ? "[ CORE INITIALIZED ]" : "[ READY WHEN YOU ARE ]"}</span>
         <div className="action-wrap">
-          <button className="primary-action" type="button" onClick={() => setIsReady(true)}>
+          <button
+            className="primary-action"
+            type="button"
+            title="Workspace navigation is not wired yet in this preview build"
+            onClick={() => setIsReady(true)}
+          >
             {isReady ? "ENTER WORKSPACE" : "INITIALIZE CORE"}
             <span aria-hidden="true">↗</span>
           </button>
