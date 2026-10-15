@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "node scripts/free-dev-port.mjs && vite",
     "build": "tsc && vite build",
+    "test": "node --test src/features/onboarding/*.test.mjs",
     "preview": "vite preview",
     "tauri": "tauri"
   },
