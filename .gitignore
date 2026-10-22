@@ -35,6 +35,9 @@ src-tauri/WixTools
 *.sln
 *.sw?
 
+# Subagent workspace
+.worktrees/
+
 # OS
 .DS_Store
 Thumbs.db
