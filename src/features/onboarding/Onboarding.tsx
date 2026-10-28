@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { getCurrentWindow, type Theme } from "@tauri-apps/api/window";
 
 import { HeroStage } from "./HeroStage";
@@ -51,7 +51,40 @@ function ModeIcon({ theme }: { theme: OnboardingTheme }) {
 
 export default function Onboarding() {
   const [theme, setTheme] = useState<OnboardingTheme>(getInitialTheme);
-  const [isReady, setIsReady] = useState(false);
+  const [headerInset, setHeaderInset] = useState(0);
+  const [footerInset, setFooterInset] = useState(0);
+  const shellRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const shell = shellRef.current;
+    const header = headerRef.current;
+    const footer = footerRef.current;
+    if (!shell || !header || !footer) return;
+
+    const update = () => {
+      const shellRect = shell.getBoundingClientRect();
+      const headerRect = header.getBoundingClientRect();
+      const footerRect = footer.getBoundingClientRect();
+      const nextHeaderInset = Math.max(0, headerRect.bottom - shellRect.top);
+      const nextFooterInset = Math.max(0, shellRect.bottom - footerRect.top);
+      shell.style.setProperty("--footer-space", `${nextFooterInset}px`);
+      setHeaderInset((previous) =>
+        Math.abs(previous - nextHeaderInset) < 0.5 ? previous : nextHeaderInset,
+      );
+      setFooterInset((previous) =>
+        Math.abs(previous - nextFooterInset) < 0.5 ? previous : nextFooterInset,
+      );
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(shell);
+    observer.observe(header);
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -67,8 +100,8 @@ export default function Onboarding() {
   }
 
   return (
-    <main className="onboarding-shell">
-      <header className="topbar">
+    <main className="onboarding-shell" ref={shellRef}>
+      <header className="topbar" ref={headerRef}>
         <div className="wordmark" aria-label="OpenCore">
           <span className="wordmark-mark" aria-hidden="true">/</span>
           <span>OPENCORE</span>
@@ -88,33 +121,17 @@ export default function Onboarding() {
         </div>
       </header>
 
-      <section className="onboarding-content" aria-labelledby="onboarding-title">
-        <div className="copy-column">
-          <p className="eyebrow"><span>01</span> PRIVATE INTELLIGENCE / DESKTOP</p>
-          <h1 id="onboarding-title">A quieter way<br /><em>to think.</em></h1>
-          <p className="intro">
-            OpenCore keeps your AI tools close, local, and ready when the work gets serious.
-          </p>
-          <ul className="feature-list" aria-label="OpenCore features">
-            <li className="feature-row">One focused workspace</li>
-            <li className="feature-row">Models on your terms</li>
-            <li className="feature-row">Signal without the noise</li>
-          </ul>
-        </div>
+      <HeroStage theme={theme} headerInset={headerInset} footerInset={footerInset} />
 
-        <HeroStage />
-      </section>
-
-      <footer className="bottombar">
-        <span className="action-status" aria-live="polite">{isReady ? "[ CORE INITIALIZED ]" : "[ READY WHEN YOU ARE ]"}</span>
+      <footer className="bottombar" ref={footerRef}>
+        <span className="action-status" aria-live="polite">[ SYSTEM READY ]</span>
         <div className="action-wrap">
           <button
             className="primary-action"
             type="button"
             title="Workspace navigation is not wired yet in this preview build"
-            onClick={() => setIsReady(true)}
           >
-            {isReady ? "ENTER WORKSPACE" : "INITIALIZE CORE"}
+            ENTER WORKSPACE
             <span aria-hidden="true">↗</span>
           </button>
         </div>
