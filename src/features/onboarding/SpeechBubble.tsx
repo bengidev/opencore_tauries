@@ -1,58 +1,50 @@
 import { useEffect, useState } from "react";
 
-export const SPEECH_LINES = [
-  "Hello! Ready to explore?",
-  "I'm here for any task.",
-  "Let's get started.",
-] as const;
+import { usePrefersReducedMotion } from "./use-prefers-reduced-motion";
 
-const WORD_INTERVAL_MS = 240;
+const WORD_INTERVAL_MS = 190;
 
-type SpeechBubbleProps = {
+export function SpeechBubble({
+  message,
+  revision,
+  active,
+}: {
   message: string;
   revision: number;
-  anchor: number;
-};
-
-export function SpeechBubble({ message, revision, anchor }: SpeechBubbleProps) {
+  active: boolean;
+}) {
   const words = message.trim().split(/\s+/).filter(Boolean);
-  const [visible, setVisible] = useState(0);
+  const reducedMotion = usePrefersReducedMotion();
+  const [visibleWords, setVisibleWords] = useState(0);
 
   useEffect(() => {
-    const items = message.trim().split(/\s+/).filter(Boolean);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(items.length);
+    if (!active) return;
+    if (reducedMotion) {
+      setVisibleWords(words.length);
       return;
     }
 
-    setVisible(0);
+    setVisibleWords(0);
     let count = 0;
     const timer = window.setInterval(() => {
       count += 1;
-      setVisible(count);
-      if (count >= items.length) window.clearInterval(timer);
+      setVisibleWords(count);
+      if (count >= words.length) window.clearInterval(timer);
     }, WORD_INTERVAL_MS);
 
     return () => window.clearInterval(timer);
-  }, [message, revision]);
+  }, [active, message, revision, reducedMotion, words.length]);
 
   return (
-    <div
-      className="speech-anchor"
-      style={{
-        left: `${anchor * 100}%`,
-      }}
-    >
-      <div className="speech-bubble">
-        <p className="speech-text" aria-live="polite" aria-atomic="true">
-          {words.slice(0, visible).map((word, index) => (
-            <span key={`${revision}-${index}`}>
-              {index > 0 && " "}
-              <span className="speech-word">{word}</span>
-            </span>
-          ))}
-        </p>
-      </div>
-    </div>
+    <p className="speech-text">
+      {words.map((word, index) => (
+        <span key={`${revision}-${index}`}>
+          {index > 0 && " "}
+          <span className="speech-word" data-visible={index < visibleWords}>
+            {word}
+          </span>
+        </span>
+      ))}
+    </p>
   );
 }
