@@ -9,6 +9,7 @@ Antarmuka chat, penyedia model, dan riwayat percakapan belum dibangun. Yang ada 
 - Jendela desktop Tauri dengan frontend Vite + React + TypeScript
 - Perintah Rust `greet` sebagai contoh pemanggilan dari antarmuka
 - Konfigurasi bundel untuk macOS, Windows, dan Linux
+- Layar home dengan sidebar sesi mock, composer, dan hero; onboarding tampil sekali dan bisa diputar ulang dari sidebar
 
 ## Prasyarat
 

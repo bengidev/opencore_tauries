@@ -19,7 +19,11 @@ function ModeIcon({ theme }: { theme: OnboardingTheme }) {
   );
 }
 
-export default function Onboarding() {
+export type OnboardingProps = {
+  onEnterWorkspace?: () => void;
+};
+
+export default function Onboarding({ onEnterWorkspace }: OnboardingProps) {
   const { theme, toggleTheme } = useTheme();
   const [headerInset, setHeaderInset] = useState(0);
   const [footerInset, setFooterInset] = useState(0);
@@ -83,11 +87,7 @@ export default function Onboarding() {
       <footer className="bottombar" ref={footerRef}>
         <span className="action-status" aria-live="polite">[ SYSTEM READY ]</span>
         <div className="action-wrap">
-          <button
-            className="primary-action"
-            type="button"
-            title="Workspace navigation is not wired yet in this preview build"
-          >
+          <button className="primary-action" type="button" onClick={onEnterWorkspace}>
             ENTER WORKSPACE
             <span aria-hidden="true">↗</span>
           </button>
