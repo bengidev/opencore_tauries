@@ -125,6 +125,22 @@ export function PanelIcon({ className }: IconProps) {
   );
 }
 
+export function CheckIcon({ className }: IconProps) {
+  return (
+    <Icon className={className}>
+      <path d="m3 8.5 3.2 3.2L13 5" />
+    </Icon>
+  );
+}
+
+export function CloseIcon({ className }: IconProps) {
+  return (
+    <Icon className={className}>
+      <path d="m4.5 4.5 7 7M11.5 4.5l-7 7" />
+    </Icon>
+  );
+}
+
 export function CheckoutIcon({ className }: IconProps) {
   return (
     <Icon className={className}>

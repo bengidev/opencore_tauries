@@ -1,11 +1,15 @@
 import {
   useLayoutEffect,
   useRef,
+  useState,
   type ChangeEvent,
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { ArrowUpIcon, ChevronDownIcon, PlusIcon } from "./icons";
+
+import { MODE_OPTIONS, MODEL_OPTIONS } from "../composer-options";
+import PopoverMenu from "./PopoverMenu";
+import { ArrowUpIcon, CloseIcon, PlusIcon } from "./icons";
 
 export type ComposerProps = {
   value: string;
@@ -13,6 +17,8 @@ export type ComposerProps = {
   onSubmit: () => void;
   model: string;
   mode: string;
+  onModelChange: (model: string) => void;
+  onModeChange: (mode: string) => void;
   disabled?: boolean;
 };
 
@@ -33,9 +39,13 @@ export default function Composer({
   onSubmit,
   model,
   mode,
+  onModelChange,
+  onModeChange,
   disabled = false,
 }: ComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const canSubmit = !disabled && value.trim().length > 0;
 
   // Re-measure after every value change so a draft restored by switching sessions
@@ -54,6 +64,25 @@ export default function Composer({
     onChange(event.target.value);
   }
 
+  function handleFiles(event: ChangeEvent<HTMLInputElement>): void {
+    const picked = Array.from(event.target.files ?? []);
+    if (picked.length > 0) {
+      setAttachments((current) => [...current, ...picked]);
+    }
+    // Reset so picking the same file again still fires a change event.
+    event.target.value = "";
+  }
+
+  function removeAttachment(index: number): void {
+    setAttachments((current) => current.filter((_, position) => position !== index));
+  }
+
+  function submit(): void {
+    if (!canSubmit) return;
+    onSubmit();
+    setAttachments([]);
+  }
+
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>): void {
     if (event.key !== "Enter" || event.shiftKey) return;
     // IME composition uses Enter to accept a candidate; never submit on that key.
@@ -62,14 +91,34 @@ export default function Composer({
     if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
 
     event.preventDefault();
-
-    if (canSubmit) {
-      onSubmit();
-    }
+    submit();
   }
 
   return (
     <div className="home-composer">
+      {attachments.length > 0 ? (
+        <ul className="home-composer-files" aria-label="Attached files">
+          {attachments.map((file, index) => (
+            <li
+              key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
+              className="home-composer-file"
+            >
+              <span className="home-composer-file-name" title={file.name}>
+                {file.name}
+              </span>
+              <button
+                type="button"
+                className="home-composer-file-remove"
+                aria-label={`Remove ${file.name}`}
+                onClick={() => removeAttachment(index)}
+              >
+                <CloseIcon />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
       <textarea
         ref={textareaRef}
         className="home-composer-input"
@@ -83,17 +132,41 @@ export default function Composer({
       />
 
       <div className="home-composer-actions">
-        <button className="home-composer-add" type="button" aria-label="Add context" disabled>
+        <button
+          className="home-composer-add"
+          type="button"
+          aria-label="Add files"
+          disabled={disabled}
+          onClick={() => fileInputRef.current?.click()}
+        >
           <PlusIcon />
         </button>
+        <input
+          ref={fileInputRef}
+          className="home-composer-file-input"
+          type="file"
+          multiple
+          tabIndex={-1}
+          aria-hidden="true"
+          onChange={handleFiles}
+        />
 
-        <span className="home-composer-pill home-composer-model">
-          <span className="home-composer-dot" aria-hidden="true" />
-          {model}
-          <ChevronDownIcon className="home-composer-chevron" />
-        </span>
+        <PopoverMenu
+          label="Model"
+          value={model}
+          options={MODEL_OPTIONS}
+          onChange={onModelChange}
+          dot
+        />
 
-        <span className="home-composer-pill home-composer-mode">{mode}</span>
+        <PopoverMenu
+          label="Mode"
+          value={mode}
+          options={MODE_OPTIONS}
+          onChange={onModeChange}
+          chevron={false}
+          className="home-composer-mode"
+        />
 
         <span className="home-composer-spacer" />
 
@@ -102,7 +175,7 @@ export default function Composer({
           type="button"
           aria-label="Send prompt"
           disabled={!canSubmit}
-          onClick={onSubmit}
+          onClick={submit}
         >
           <ArrowUpIcon />
         </button>
