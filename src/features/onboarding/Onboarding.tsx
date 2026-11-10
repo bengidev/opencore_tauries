@@ -1,40 +1,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { getCurrentWindow, type Theme } from "@tauri-apps/api/window";
 
+import { useTheme } from "../../shared/use-theme";
+import type { AppTheme } from "../../shared/theme";
 import { HeroStage } from "./HeroStage";
 
-export type OnboardingTheme = Extract<Theme, "light" | "dark">;
-
-const THEME_STORAGE_KEY = "opencore-theme";
-const SURFACE_COLORS: Record<OnboardingTheme, string> = {
-  light: "#f5f5f5",
-  dark: "#000000",
-};
-
-function getInitialTheme(): OnboardingTheme {
-  const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-  if (storedTheme === "light" || storedTheme === "dark") return storedTheme;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-function syncNativeTheme(theme: OnboardingTheme): void {
-  if (!("__TAURI_INTERNALS__" in window)) return;
-  const windowHandle = getCurrentWindow();
-  void Promise.all([
-    windowHandle.setTheme(theme),
-    windowHandle.setBackgroundColor(SURFACE_COLORS[theme]),
-  ]).catch(() => undefined);
-}
-
-function setBrowserThemeColor(color: string): void {
-  let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  if (!meta) {
-    meta = document.createElement("meta");
-    meta.name = "theme-color";
-    document.head.append(meta);
-  }
-  meta.content = color;
-}
+export type OnboardingTheme = AppTheme;
 
 function ModeIcon({ theme }: { theme: OnboardingTheme }) {
   return theme === "dark" ? (
@@ -50,7 +20,7 @@ function ModeIcon({ theme }: { theme: OnboardingTheme }) {
 }
 
 export default function Onboarding() {
-  const [theme, setTheme] = useState<OnboardingTheme>(getInitialTheme);
+  const { theme, toggleTheme } = useTheme();
   const [headerInset, setHeaderInset] = useState(0);
   const [footerInset, setFooterInset] = useState(0);
   const shellRef = useRef<HTMLElement>(null);
@@ -85,19 +55,6 @@ export default function Onboarding() {
     observer.observe(footer);
     return () => observer.disconnect();
   }, []);
-
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-    root.dataset.theme = theme;
-    root.style.colorScheme = theme;
-    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-    setBrowserThemeColor(SURFACE_COLORS[theme]);
-    syncNativeTheme(theme);
-  }, [theme]);
-
-  function toggleTheme() {
-    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
-  }
 
   return (
     <main className="onboarding-shell" ref={shellRef}>
