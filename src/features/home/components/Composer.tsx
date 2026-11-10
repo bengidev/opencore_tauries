@@ -57,7 +57,9 @@ export default function Composer({
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>): void {
     if (event.key !== "Enter" || event.shiftKey) return;
     // IME composition uses Enter to accept a candidate; never submit on that key.
-    if (event.nativeEvent.isComposing) return;
+    // WebView2/Chromium fire compositionend before the committing keydown, so isComposing
+    // is already false there; keyCode 229 is the legacy marker for an IME-handled keydown.
+    if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
 
     event.preventDefault();
 

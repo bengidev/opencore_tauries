@@ -21,6 +21,8 @@ export type HomeProps = {
 
 const MOCK_DIFF = { added: 12, removed: 3 };
 const COMPOSER_MODE = "Supervised";
+// Keep in sync with the drawer breakpoint in home.css.
+const COMPACT_QUERY = "(max-width: 900px)";
 
 export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
   const [sessions, setSessions] = useState<Session[]>(() => [...MOCK_SESSIONS]);
@@ -28,6 +30,7 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
   const [query, setQuery] = useState("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [compact, setCompact] = useState(() => window.matchMedia(COMPACT_QUERY).matches);
   const searchRef = useRef<HTMLInputElement>(null);
   const { theme, toggleTheme } = useTheme();
 
@@ -46,6 +49,39 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [sidebarOpen]);
+
+  useEffect(() => {
+    const media = window.matchMedia(COMPACT_QUERY);
+    setCompact(media.matches);
+
+    function handleChange(event: MediaQueryListEvent): void {
+      setCompact(event.matches);
+    }
+
+    media.addEventListener("change", handleChange);
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent): void {
+      if ((!event.metaKey && !event.ctrlKey) || event.key.toLowerCase() !== "k") return;
+      if (event.shiftKey || event.altKey) return;
+
+      event.preventDefault();
+      setSidebarOpen(true);
+      // Below 900px the closed drawer is inert; the state update has committed by the
+      // next frame, so focus can move into the panel without landing off-screen.
+      requestAnimationFrame(() => {
+        const input = searchRef.current;
+        if (!input) return;
+        input.focus();
+        input.select();
+      });
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   function handleNewSession(): void {
     const session = newSession(`session-${Date.now()}`);
@@ -90,6 +126,7 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
         onNewSession={handleNewSession}
         onReplayIntro={onReplayIntro}
         searchRef={searchRef}
+        inert={compact && !sidebarOpen}
       />
 
       {sidebarOpen ? (

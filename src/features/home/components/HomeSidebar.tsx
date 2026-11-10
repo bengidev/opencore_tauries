@@ -19,6 +19,8 @@ export type HomeSidebarProps = {
   onNewSession: () => void;
   onReplayIntro?: () => void;
   searchRef: RefObject<HTMLInputElement | null>;
+  /** Removes the whole panel from the tab order and the a11y tree (closed mobile drawer). */
+  inert?: boolean;
 };
 
 export default function HomeSidebar({
@@ -30,19 +32,11 @@ export default function HomeSidebar({
   onNewSession,
   onReplayIntro,
   searchRef,
+  inert,
 }: HomeSidebarProps) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const input = searchRef.current;
-
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        if (input) {
-          input.focus();
-          input.select();
-        }
-        return;
-      }
 
       if (event.key === "Escape" && input && document.activeElement === input) {
         input.blur();
@@ -57,7 +51,7 @@ export default function HomeSidebar({
   const groups = groupSessions(filterSessions(sessions, query));
 
   return (
-    <aside className="home-sidebar" aria-label="Workspace">
+    <aside className="home-sidebar" aria-label="Workspace" inert={inert}>
       <div className="home-brand">
         <span className="home-brand-mark" aria-hidden="true">/</span>
         <span className="home-brand-name">OPENCORE</span>
