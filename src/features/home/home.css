@@ -1,0 +1,459 @@
+.home-shell {
+  --home-sidebar: 240px;
+  --home-composer: 720px;
+  display: grid;
+  grid-template-columns: var(--home-sidebar) minmax(0, 1fr);
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.home-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  padding: 14px 10px 12px;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.home-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 8px;
+  color: var(--text-display);
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+}
+
+.home-brand-mark {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.home-brand-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home-brand-chevron {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--text-secondary);
+}
+
+.home-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.home-nav-item {
+  display: flex;
+  width: 100%;
+  height: 34px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+}
+
+.home-nav-item:hover {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+.home-nav-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.home-nav-icon {
+  flex: none;
+}
+
+.home-nav-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home-nav-hint {
+  margin-left: auto;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+
+.home-sessions {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 0 2px;
+  overflow: hidden;
+}
+
+.home-section-label {
+  margin: 0;
+  padding: 0 6px;
+  color: var(--text-secondary);
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.home-session-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.home-session-row {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms var(--ease-out);
+}
+
+.home-session-row:hover {
+  background: var(--surface-raised);
+}
+
+.home-session-row[data-active="true"] {
+  background: var(--surface-raised);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.home-session-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.home-session-title {
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home-session-meta {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home-sidebar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding: 10px 6px 0;
+  border-top: 1px solid var(--border);
+}
+
+.home-footer-action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color 140ms var(--ease-out);
+}
+
+.home-footer-action:hover {
+  color: var(--text-display);
+}
+
+.home-footer-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.home-memory {
+  color: var(--text-secondary);
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.home-main {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.home-topbar {
+  display: flex;
+  height: 48px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.home-topbar-nav {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+}
+
+.home-icon-button {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+}
+
+.home-icon-button:hover:not(:disabled) {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+.home-icon-button:disabled {
+  color: var(--text-disabled);
+  cursor: default;
+}
+
+.home-icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.home-crumb {
+  display: flex;
+  min-width: 0;
+  max-width: 42%;
+  align-items: center;
+  gap: 7px;
+  padding: 0 2px;
+}
+
+.home-crumb-dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.home-crumb-title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home-topbar-spacer {
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-width: 8px;
+}
+
+.home-diff {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+
+.home-diff-added {
+  color: var(--interactive);
+}
+
+.home-diff-removed {
+  color: var(--accent);
+}
+
+.home-stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px 24px 56px;
+  overflow: hidden;
+  text-align: center;
+  isolation: isolate;
+}
+
+.home-hero {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-color: var(--page);
+  background-image: radial-gradient(var(--border-visible) 0.65px, transparent 0.65px);
+  background-position: center center;
+  background-size: 18px 18px;
+}
+
+.home-hero-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 55% at 50% 38%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
+    radial-gradient(90% 80% at 50% 100%, color-mix(in srgb, var(--accent) 3%, transparent), transparent 75%);
+}
+
+.home-hero-vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--page) 55%, transparent), transparent 30%, transparent 60%, var(--page));
+}
+
+.home-hero-scrim {
+  position: absolute;
+  inset: 0;
+  display: none;
+  background: color-mix(in srgb, var(--page) 72%, transparent);
+}
+
+.home-hero[data-image="true"] {
+  background-image: var(--home-hero-image);
+  background-position: center;
+  background-size: cover;
+}
+
+.home-hero[data-image="true"] .home-hero-scrim {
+  display: block;
+}
+
+.home-title {
+  position: relative;
+  max-width: min(100%, 520px);
+  margin: 0;
+  color: var(--text-display);
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.home-composer-slot {
+  position: relative;
+  width: min(100%, var(--home-composer));
+  min-height: 96px;
+}
+
+.home-status {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.home-status-chip {
+  display: inline-flex;
+  height: 26px;
+  max-width: 46%;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.home-status-icon {
+  flex: none;
+  color: var(--text-disabled);
+}
+
+.home-status-value {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-shell *,
+  .home-shell *::before,
+  .home-shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
