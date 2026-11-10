@@ -32,6 +32,7 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [compact, setCompact] = useState(() => window.matchMedia(COMPACT_QUERY).matches);
   const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
 
   const activeSession = sessions.find((session) => session.id === activeId) ?? sessions[0] ?? null;
@@ -88,6 +89,8 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
     setSessions((current) => [session, ...current]);
     setActiveId(session.id);
     setQuery("");
+    // The new row is prepended above the scrollport on short viewports.
+    requestAnimationFrame(() => listRef.current?.scrollTo({ top: 0 }));
   }
 
   function handleDraftChange(value: string): void {
@@ -122,14 +125,18 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
         activeId={activeId}
         query={query}
         onQueryChange={setQuery}
-        onSelectSession={setActiveId}
+        onSelectSession={(id) => {
+          setActiveId(id);
+          if (compact) setSidebarOpen(false);
+        }}
         onNewSession={handleNewSession}
         onReplayIntro={onReplayIntro}
         searchRef={searchRef}
+        listRef={listRef}
         inert={compact && !sidebarOpen}
       />
 
-      {sidebarOpen ? (
+      {compact && sidebarOpen ? (
         <div className="home-scrim" aria-hidden="true" onClick={() => setSidebarOpen(false)} />
       ) : null}
 

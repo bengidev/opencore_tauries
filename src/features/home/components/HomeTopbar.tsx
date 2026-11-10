@@ -56,6 +56,7 @@ export default function HomeTopbar({
         type="button"
         aria-label="Toggle sidebar"
         aria-expanded={sidebarOpen}
+        aria-controls="home-sidebar"
         onClick={onToggleSidebar}
       >
         <PanelIcon />

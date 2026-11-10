@@ -3,9 +3,17 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { type AppTheme, SURFACE_COLORS, THEME_STORAGE_KEY, resolveInitialTheme } from "./theme";
 
+function readStoredTheme(): string | null {
+  try {
+    return window.localStorage.getItem(THEME_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
 function getInitialTheme(): AppTheme {
   return resolveInitialTheme(
-    window.localStorage.getItem(THEME_STORAGE_KEY),
+    readStoredTheme(),
     window.matchMedia("(prefers-color-scheme: dark)").matches,
   );
 }
@@ -36,7 +44,11 @@ export function useTheme(): { theme: AppTheme; toggleTheme: () => void } {
     const root = document.documentElement;
     root.dataset.theme = theme;
     root.style.colorScheme = theme;
-    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // Storage may be unavailable (private mode, quota); theming still applies.
+    }
     setBrowserThemeColor(SURFACE_COLORS[theme]);
     syncNativeTheme(theme);
   }, [theme]);

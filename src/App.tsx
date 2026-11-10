@@ -8,21 +8,38 @@ const ONBOARDED_KEY = "opencore-onboarded";
 
 type Screen = "onboarding" | "home";
 
+function readOnboarded(): boolean {
+  try {
+    return window.localStorage.getItem(ONBOARDED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeOnboarded(onboarded: boolean): void {
+  try {
+    if (onboarded) window.localStorage.setItem(ONBOARDED_KEY, "1");
+    else window.localStorage.removeItem(ONBOARDED_KEY);
+  } catch {
+    // Persistence is best-effort; the screen transition must still happen.
+  }
+}
+
 function initialScreen(): Screen {
-  return window.localStorage.getItem(ONBOARDED_KEY) === "1" ? "home" : "onboarding";
+  return readOnboarded() ? "home" : "onboarding";
 }
 
 function App() {
   const [screen, setScreen] = useState<Screen>(initialScreen);
 
   function enterWorkspace() {
-    window.localStorage.setItem(ONBOARDED_KEY, "1");
     setScreen("home");
+    writeOnboarded(true);
   }
 
   function replayIntro() {
-    window.localStorage.removeItem(ONBOARDED_KEY);
     setScreen("onboarding");
+    writeOnboarded(false);
   }
 
   return screen === "home" ? (
