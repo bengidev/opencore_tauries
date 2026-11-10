@@ -32,10 +32,11 @@ export default function HomeTopbar({ title, diff, onNewSession, onToggleSidebar 
 
       <div
         className="home-diff"
+        role="img"
         aria-label={`${diff.added} lines added, ${diff.removed} lines removed`}
       >
-        <span className="home-diff-added" aria-hidden="true">+{diff.added}</span>
-        <span className="home-diff-removed" aria-hidden="true">−{diff.removed}</span>
+        <span>+{diff.added}</span>
+        <span>−{diff.removed}</span>
       </div>
 
       <button

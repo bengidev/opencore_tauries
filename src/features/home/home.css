@@ -198,12 +198,15 @@
 }
 
 .home-footer-action {
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 4px;
   border: 0;
   background: transparent;
   color: var(--text-secondary);
   font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.1em;
   cursor: pointer;
   transition: color 140ms var(--ease-out);
@@ -320,16 +323,9 @@
   align-items: center;
   gap: 8px;
   font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  color: var(--text-secondary);
   font-size: 10px;
   letter-spacing: 0.02em;
-}
-
-.home-diff-added {
-  color: var(--interactive);
-}
-
-.home-diff-removed {
-  color: var(--accent);
 }
 
 .home-stage {
