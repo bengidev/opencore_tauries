@@ -1,10 +1,61 @@
-import { AutomationsIcon, ChevronDownIcon, InboxIcon, NoteIcon, SearchIcon } from "./icons";
+import { useEffect, type RefObject } from "react";
+import { filterSessions, groupSessions, type Session } from "../sessions";
+import SessionList from "./SessionList";
+import {
+  AutomationsIcon,
+  ChevronDownIcon,
+  InboxIcon,
+  NoteIcon,
+  PlusIcon,
+  SearchIcon,
+} from "./icons";
 
 export type HomeSidebarProps = {
+  sessions: readonly Session[];
+  activeId: string | null;
+  query: string;
+  onQueryChange: (query: string) => void;
+  onSelectSession: (id: string) => void;
+  onNewSession: () => void;
   onReplayIntro?: () => void;
+  searchRef: RefObject<HTMLInputElement | null>;
 };
 
-export default function HomeSidebar({ onReplayIntro }: HomeSidebarProps) {
+export default function HomeSidebar({
+  sessions,
+  activeId,
+  query,
+  onQueryChange,
+  onSelectSession,
+  onNewSession,
+  onReplayIntro,
+  searchRef,
+}: HomeSidebarProps) {
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const input = searchRef.current;
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        if (input) {
+          input.focus();
+          input.select();
+        }
+        return;
+      }
+
+      if (event.key === "Escape" && input && document.activeElement === input) {
+        input.blur();
+        document.body.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [searchRef]);
+
+  const groups = groupSessions(filterSessions(sessions, query));
+
   return (
     <aside className="home-sidebar" aria-label="Workspace">
       <div className="home-brand">
@@ -14,11 +65,20 @@ export default function HomeSidebar({ onReplayIntro }: HomeSidebarProps) {
       </div>
 
       <nav className="home-nav" aria-label="Primary">
-        <button className="home-nav-item" type="button">
+        <div className="home-nav-search">
           <SearchIcon className="home-nav-icon" />
-          <span className="home-nav-label">Search</span>
-          <kbd className="home-nav-hint">⌘K</kbd>
-        </button>
+          <input
+            ref={searchRef}
+            className="home-search-input"
+            type="search"
+            placeholder="Search"
+            aria-label="Search sessions"
+            aria-keyshortcuts="Meta+K"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+          />
+          <kbd className="home-nav-hint" aria-hidden="true">⌘K</kbd>
+        </div>
         <button className="home-nav-item" type="button">
           <InboxIcon className="home-nav-icon" />
           <span className="home-nav-label">Inbox</span>
@@ -34,8 +94,21 @@ export default function HomeSidebar({ onReplayIntro }: HomeSidebarProps) {
       </nav>
 
       <div className="home-sessions">
-        <p className="home-section-label">SESSIONS</p>
-        <div className="home-session-list" />
+        <div className="home-sessions-head">
+          <button className="home-session-new" type="button" onClick={onNewSession}>
+            <PlusIcon />
+            <span>New</span>
+          </button>
+        </div>
+
+        <nav className="home-session-list" aria-label="Sessions">
+          <SessionList
+            groups={groups}
+            activeId={activeId}
+            onSelect={onSelectSession}
+            query={query}
+          />
+        </nav>
       </div>
 
       <div className="home-sidebar-footer">
