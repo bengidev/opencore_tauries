@@ -1,3 +1,4 @@
+import type { AppTheme } from "../../../shared/theme";
 import { ArrowLeftIcon, ArrowRightIcon, PanelIcon, PlusIcon } from "./icons";
 
 export type HomeTopbarProps = {
@@ -5,9 +6,20 @@ export type HomeTopbarProps = {
   diff: { added: number; removed: number };
   onNewSession: () => void;
   onToggleSidebar: () => void;
+  sidebarOpen: boolean;
+  theme: AppTheme;
+  onToggleTheme: () => void;
 };
 
-export default function HomeTopbar({ title, diff, onNewSession, onToggleSidebar }: HomeTopbarProps) {
+export default function HomeTopbar({
+  title,
+  diff,
+  onNewSession,
+  onToggleSidebar,
+  sidebarOpen,
+  theme,
+  onToggleTheme,
+}: HomeTopbarProps) {
   return (
     <header className="home-topbar">
       <div className="home-topbar-nav">
@@ -40,12 +52,23 @@ export default function HomeTopbar({ title, diff, onNewSession, onToggleSidebar 
       </div>
 
       <button
-        className="home-icon-button"
+        className="home-icon-button home-sidebar-toggle"
         type="button"
         aria-label="Toggle sidebar"
+        aria-expanded={sidebarOpen}
         onClick={onToggleSidebar}
       >
         <PanelIcon />
+      </button>
+
+      <button
+        className="home-theme-toggle"
+        type="button"
+        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+        aria-pressed={theme === "dark"}
+        onClick={onToggleTheme}
+      >
+        {theme === "dark" ? "DARK" : "LIGHT"}
       </button>
     </header>
   );

@@ -1,27 +1,51 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import HeroBackdrop from "./components/HeroBackdrop";
 import HomeSidebar from "./components/HomeSidebar";
 import HomeStatus from "./components/HomeStatus";
 import HomeTopbar from "./components/HomeTopbar";
-import { MOCK_SESSIONS, newSession, type Session } from "./sessions";
+import Composer from "./components/Composer";
+import { useTheme } from "../../shared/use-theme";
+import {
+  DEFAULT_MODEL,
+  MOCK_SESSIONS,
+  newSession,
+  sessionTitleFromPrompt,
+  type Session,
+} from "./sessions";
 import "./home.css";
 
 export type HomeProps = {
   onReplayIntro?: () => void;
+  onSubmitPrompt?: (prompt: string, session: Session) => void;
 };
 
 const MOCK_DIFF = { added: 12, removed: 3 };
+const COMPOSER_MODE = "Supervised";
 
-// The topbar sidebar toggle is wired in Task 5 (drawer).
-function noop(): void {}
-
-export default function Home({ onReplayIntro }: HomeProps) {
+export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
   const [sessions, setSessions] = useState<Session[]>(() => [...MOCK_SESSIONS]);
   const [activeId, setActiveId] = useState<string>(MOCK_SESSIONS[0].id);
   const [query, setQuery] = useState("");
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const { theme, toggleTheme } = useTheme();
 
   const activeSession = sessions.find((session) => session.id === activeId) ?? sessions[0] ?? null;
+  const draft = activeSession ? drafts[activeSession.id] ?? "" : "";
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent): void {
+      if (event.key === "Escape") {
+        setSidebarOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [sidebarOpen]);
 
   function handleNewSession(): void {
     const session = newSession(`session-${Date.now()}`);
@@ -30,8 +54,33 @@ export default function Home({ onReplayIntro }: HomeProps) {
     setQuery("");
   }
 
+  function handleDraftChange(value: string): void {
+    if (!activeSession) return;
+    const sessionId = activeSession.id;
+    setDrafts((current) => ({ ...current, [sessionId]: value }));
+  }
+
+  function handleSubmitPrompt(): void {
+    if (!activeSession) return;
+
+    const prompt = draft.trim();
+    if (!prompt) return;
+
+    const updatedSession: Session = {
+      ...activeSession,
+      title: sessionTitleFromPrompt(prompt),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setSessions((current) =>
+      current.map((session) => (session.id === updatedSession.id ? updatedSession : session)),
+    );
+    setDrafts((current) => ({ ...current, [updatedSession.id]: "" }));
+    onSubmitPrompt?.(prompt, updatedSession);
+  }
+
   return (
-    <div className="home-shell">
+    <div className="home-shell" data-sidebar-open={sidebarOpen}>
       <HomeSidebar
         sessions={sessions}
         activeId={activeId}
@@ -43,18 +92,32 @@ export default function Home({ onReplayIntro }: HomeProps) {
         searchRef={searchRef}
       />
 
+      {sidebarOpen ? (
+        <div className="home-scrim" aria-hidden="true" onClick={() => setSidebarOpen(false)} />
+      ) : null}
+
       <main className="home-main">
         <HomeTopbar
           title={activeSession?.title ?? "No sessions"}
           diff={MOCK_DIFF}
           onNewSession={handleNewSession}
-          onToggleSidebar={noop}
+          onToggleSidebar={() => setSidebarOpen((open) => !open)}
+          sidebarOpen={sidebarOpen}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
 
         <section className="home-stage" aria-labelledby="home-title">
           <HeroBackdrop />
           <h1 className="home-title" id="home-title">What should we work on?</h1>
-          <div className="home-composer-slot" aria-hidden="true" />
+          <Composer
+            value={draft}
+            onChange={handleDraftChange}
+            onSubmit={handleSubmitPrompt}
+            model={activeSession?.model ?? DEFAULT_MODEL}
+            mode={COMPOSER_MODE}
+            disabled={draft.trim().length === 0}
+          />
           <HomeStatus branch={activeSession?.branch ?? "—"} />
         </section>
       </main>
