@@ -186,15 +186,15 @@
 
 .home-sessions-head {
   display: flex;
-  height: 20px;
+  height: 28px;
   align-items: center;
   justify-content: flex-end;
-  padding: 0 6px;
+  padding: 4px 6px 0;
 }
 
 .home-session-new {
   display: inline-flex;
-  min-height: 20px;
+  min-height: 24px;
   align-items: center;
   gap: 4px;
   padding: 0 4px;
@@ -230,7 +230,7 @@
   flex-direction: column;
   gap: 2px;
   min-height: 0;
-  padding: 2px 4px;
+  padding: 4px;
   overflow-y: auto;
 }
 
