@@ -7,18 +7,20 @@ import {
   type KeyboardEvent,
 } from "react";
 
-import { MODE_OPTIONS, MODEL_OPTIONS } from "../composer-options";
+import { ACCESS_OPTIONS, EFFORT_OPTIONS, MODEL_OPTIONS } from "../composer-options";
 import PopoverMenu from "./PopoverMenu";
-import { ArrowUpIcon, CloseIcon, PlusIcon } from "./icons";
+import { ArrowUpIcon, CloseIcon, GaugeIcon, LockIcon, PaperclipIcon, SparkleIcon } from "./icons";
 
 export type ComposerProps = {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   model: string;
-  mode: string;
+  effort: string;
+  access: string;
   onModelChange: (model: string) => void;
-  onModeChange: (mode: string) => void;
+  onEffortChange: (effort: string) => void;
+  onAccessChange: (access: string) => void;
   disabled?: boolean;
 };
 
@@ -38,9 +40,11 @@ export default function Composer({
   onChange,
   onSubmit,
   model,
-  mode,
+  effort,
+  access,
   onModelChange,
-  onModeChange,
+  onEffortChange,
+  onAccessChange,
   disabled = false,
 }: ComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -123,7 +127,7 @@ export default function Composer({
         ref={textareaRef}
         className="home-composer-input"
         rows={1}
-        placeholder="Ask, build, or describe a change…"
+        placeholder="Ask for changes, send follow-ups, or attach images"
         aria-label="Prompt"
         value={value}
         onChange={handleChange}
@@ -132,14 +136,49 @@ export default function Composer({
       />
 
       <div className="home-composer-actions">
+        <PopoverMenu
+          label="Model"
+          value={model}
+          options={MODEL_OPTIONS}
+          onChange={onModelChange}
+          icon={<SparkleIcon className="home-composer-sparkle" />}
+        />
+
+        <span className="home-composer-divider" aria-hidden="true" />
+
+        <PopoverMenu
+          label="Effort"
+          value={effort}
+          options={EFFORT_OPTIONS}
+          onChange={onEffortChange}
+          icon={<GaugeIcon />}
+          className="home-composer-effort"
+        />
+
+        <span
+          className="home-composer-divider home-composer-effort-divider"
+          aria-hidden="true"
+        />
+
+        <PopoverMenu
+          label="Access"
+          value={access}
+          options={ACCESS_OPTIONS}
+          onChange={onAccessChange}
+          icon={<LockIcon />}
+          className="home-composer-access"
+        />
+
+        <span className="home-composer-spacer" />
+
         <button
-          className="home-composer-add"
+          className="home-composer-attach"
           type="button"
-          aria-label="Add files"
+          aria-label="Attach files"
           disabled={disabled}
           onClick={() => fileInputRef.current?.click()}
         >
-          <PlusIcon />
+          <PaperclipIcon />
         </button>
         <input
           ref={fileInputRef}
@@ -150,25 +189,6 @@ export default function Composer({
           aria-hidden="true"
           onChange={handleFiles}
         />
-
-        <PopoverMenu
-          label="Model"
-          value={model}
-          options={MODEL_OPTIONS}
-          onChange={onModelChange}
-          dot
-        />
-
-        <PopoverMenu
-          label="Mode"
-          value={mode}
-          options={MODE_OPTIONS}
-          onChange={onModeChange}
-          chevron={false}
-          className="home-composer-mode"
-        />
-
-        <span className="home-composer-spacer" />
 
         <button
           className="home-composer-submit"

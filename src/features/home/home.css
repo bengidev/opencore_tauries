@@ -676,14 +676,14 @@
   display: flex;
   width: min(100%, var(--home-composer));
   flex-direction: column;
-  gap: 10px;
-  padding: 12px 12px 10px;
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  background: var(--glass-fill);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  backdrop-filter: blur(14px) saturate(1.15);
+  gap: 14px;
+  padding: 16px 16px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--text-display) 5%, transparent),
+    0 24px 48px -32px color-mix(in srgb, var(--text-display) 28%, transparent);
   text-align: left;
 }
 
@@ -692,15 +692,11 @@
   outline-offset: 2px;
 }
 
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .home-composer { background: var(--surface); }
-}
-
 .home-composer-input {
   width: 100%;
-  min-height: 22px;
+  min-height: 46px;
   max-height: 160px;
-  padding: 0 2px;
+  padding: 2px 4px;
   overflow-y: auto;
   border: 0;
   background: transparent;
@@ -722,10 +718,10 @@
 .home-composer-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
 }
 
-.home-composer-add,
+.home-composer-attach,
 .home-composer-submit {
   display: inline-flex;
   flex: none;
@@ -736,10 +732,10 @@
   cursor: pointer;
 }
 
-.home-composer-add {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+.home-composer-attach {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   background: transparent;
   color: var(--text-secondary);
   transition:
@@ -749,53 +745,70 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .home-composer-add:hover:not(:disabled) {
+  .home-composer-attach:hover:not(:disabled) {
     background: var(--surface-raised);
     color: var(--text-primary);
   }
 }
 
-.home-composer-add:active:not(:disabled) {
+.home-composer-attach:active:not(:disabled) {
   transform: scale(0.94);
 }
 
-.home-composer-add:disabled {
+.home-composer-attach:disabled {
   color: var(--text-disabled);
   cursor: default;
 }
 
-.home-composer-add svg {
-  width: 14px;
-  height: 14px;
+.home-composer-attach svg {
+  width: 16px;
+  height: 16px;
 }
 
 .home-composer-pill {
   display: inline-flex;
-  height: 26px;
+  height: 28px;
   align-items: center;
-  gap: 5px;
-  padding: 0 7px;
-  border-radius: 6px;
+  gap: 6px;
+  padding: 0 8px;
+  border-radius: 8px;
   color: var(--text-secondary);
-  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 
-.home-composer-dot {
-  width: 5px;
-  height: 5px;
+.home-composer-trigger-icon {
+  display: inline-flex;
   flex: none;
-  border-radius: 50%;
-  background: var(--interactive);
+  color: var(--text-secondary);
+}
+
+.home-composer-trigger-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.home-composer-sparkle {
+  color: var(--accent);
+}
+
+.home-composer-divider {
+  width: 1px;
+  height: 16px;
+  flex: none;
+  margin: 0 6px;
+  background: var(--border);
 }
 
 .home-composer-chevron {
   width: 12px;
   height: 12px;
   flex: none;
-  color: var(--text-disabled);
+  color: var(--text-secondary);
+  opacity: 0.8;
 }
 
 .home-composer-spacer {
@@ -803,11 +816,12 @@
 }
 
 .home-composer-submit {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
+  margin-left: 4px;
   border-radius: 50%;
-  background: var(--text-display);
-  color: var(--page);
+  background: var(--accent);
+  color: var(--surface);
   transition:
     background-color 140ms var(--ease-out),
     color 140ms var(--ease-out),
@@ -816,8 +830,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .home-composer-submit:hover:not(:disabled) {
-    background: var(--accent);
-    color: var(--surface);
+    background: color-mix(in srgb, var(--accent) 86%, var(--text-display));
   }
 }
 
@@ -934,6 +947,7 @@
 .home-composer-trigger-label {
   min-width: 0;
   overflow: hidden;
+  color: var(--text-primary);
   text-overflow: ellipsis;
 }
 
@@ -1104,7 +1118,10 @@
     padding: 16px 14px;
   }
 
-  .home-composer-mode {
+  .home-composer-effort,
+  .home-composer-effort-divider,
+  .home-composer-access,
+  .home-composer-divider {
     display: none;
   }
 }

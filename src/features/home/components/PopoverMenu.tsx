@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 
 import type { ComposerOption } from "../composer-options";
 import { optionLabel } from "../composer-options";
@@ -9,8 +9,7 @@ export type PopoverMenuProps = {
   value: string;
   options: ComposerOption[];
   onChange: (id: string) => void;
-  dot?: boolean;
-  chevron?: boolean;
+  icon?: ReactNode;
   className?: string;
 };
 
@@ -21,8 +20,7 @@ export default function PopoverMenu({
   value,
   options,
   onChange,
-  dot = false,
-  chevron = true,
+  icon,
   className,
 }: PopoverMenuProps) {
   const [open, setOpen] = useState(false);
@@ -116,9 +114,13 @@ export default function PopoverMenu({
         onClick={() => setOpen((isOpen) => !isOpen)}
         onKeyDown={handleTriggerKeyDown}
       >
-        {dot ? <span className="home-composer-dot" aria-hidden="true" /> : null}
+        {icon ? (
+          <span className="home-composer-trigger-icon" aria-hidden="true">
+            {icon}
+          </span>
+        ) : null}
         <span className="home-composer-trigger-label">{currentLabel}</span>
-        {chevron ? <ChevronDownIcon className="home-composer-chevron" /> : null}
+        <ChevronDownIcon className="home-composer-chevron" />
       </button>
 
       {open ? (

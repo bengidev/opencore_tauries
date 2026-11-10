@@ -149,3 +149,46 @@ export function CheckoutIcon({ className }: IconProps) {
     </Icon>
   );
 }
+
+export function SparkleIcon({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={16}
+      height={16}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M8 1.8c.55 2.6 1.3 3.35 3.9 3.9-2.6.55-3.35 1.3-3.9 3.9-.55-2.6-1.3-3.35-3.9-3.9 2.6-.55 3.35-1.3 3.9-3.9ZM12.1 9.6c.28 1.3.65 1.67 1.95 1.95-1.3.28-1.67.65-1.95 1.95-.28-1.3-.65-1.67-1.95-1.95 1.3-.28 1.67-.65 1.95-1.95Z" />
+    </svg>
+  );
+}
+
+export function GaugeIcon({ className }: IconProps) {
+  return (
+    <Icon className={className}>
+      <path d="M2.9 11.3a6 6 0 1 1 10.2 0" />
+      <path d="M8 8.7 10.1 6.4" />
+      <circle cx="8" cy="8.8" r="0.9" fill="currentColor" stroke="none" />
+    </Icon>
+  );
+}
+
+export function LockIcon({ className }: IconProps) {
+  return (
+    <Icon className={className}>
+      <rect x={3.5} y={7} width={9} height={6} rx={1.5} />
+      <path d="M5.6 7V5.4a2.4 2.4 0 0 1 4.8 0V7" />
+    </Icon>
+  );
+}
+
+export function PaperclipIcon({ className }: IconProps) {
+  return (
+    <Icon className={className}>
+      <path d="M12.7 7.2 7.6 12.3a3.3 3.3 0 0 1-4.7-4.7l5.5-5.5a2.2 2.2 0 0 1 3.1 3.1l-5.5 5.5a1.1 1.1 0 0 1-1.6-1.6l5-5" />
+    </Icon>
+  );
+}

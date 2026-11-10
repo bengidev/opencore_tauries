@@ -12,7 +12,7 @@ import {
   sessionTitleFromPrompt,
   type Session,
 } from "./sessions";
-import { DEFAULT_MODE_ID } from "./composer-options";
+import { DEFAULT_ACCESS_ID, DEFAULT_EFFORT_ID } from "./composer-options";
 import "./home.css";
 
 export type HomeProps = {
@@ -29,7 +29,7 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
   const [activeId, setActiveId] = useState<string>(MOCK_SESSIONS[0].id);
   const [query, setQuery] = useState("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const [modes, setModes] = useState<Record<string, string>>({});
+  const [prefs, setPrefs] = useState<Record<string, { effort: string; access: string }>>({});
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [compact, setCompact] = useState(() => window.matchMedia(COMPACT_QUERY).matches);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -38,7 +38,9 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
 
   const activeSession = sessions.find((session) => session.id === activeId) ?? sessions[0] ?? null;
   const draft = activeSession ? drafts[activeSession.id] ?? "" : "";
-  const mode = activeSession ? modes[activeSession.id] ?? DEFAULT_MODE_ID : DEFAULT_MODE_ID;
+  const prefsForActive = activeSession ? prefs[activeSession.id] : undefined;
+  const effort = prefsForActive?.effort ?? DEFAULT_EFFORT_ID;
+  const access = prefsForActive?.access ?? DEFAULT_ACCESS_ID;
 
   useEffect(() => {
     if (!sidebarOpen) return;
@@ -111,9 +113,24 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
     );
   }
 
-  function handleModeChange(mode: string): void {
+  function updatePrefs(change: { effort?: string; access?: string }): void {
     if (!activeSession) return;
-    setModes((current) => ({ ...current, [activeSession.id]: mode }));
+    setPrefs((current) => ({
+      ...current,
+      [activeSession.id]: {
+        effort: current[activeSession.id]?.effort ?? DEFAULT_EFFORT_ID,
+        access: current[activeSession.id]?.access ?? DEFAULT_ACCESS_ID,
+        ...change,
+      },
+    }));
+  }
+
+  function handleEffortChange(effort: string): void {
+    updatePrefs({ effort });
+  }
+
+  function handleAccessChange(access: string): void {
+    updatePrefs({ access });
   }
 
   function handleSubmitPrompt(): void {
@@ -177,9 +194,11 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
             onChange={handleDraftChange}
             onSubmit={handleSubmitPrompt}
             model={activeSession?.model ?? DEFAULT_MODEL}
-            mode={mode}
+            effort={effort}
+            access={access}
             onModelChange={handleModelChange}
-            onModeChange={handleModeChange}
+            onEffortChange={handleEffortChange}
+            onAccessChange={handleAccessChange}
             disabled={!activeSession}
           />
           <HomeStatus branch={activeSession?.branch ?? "—"} />
