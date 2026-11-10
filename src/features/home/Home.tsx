@@ -136,7 +136,7 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
         inert={compact && !sidebarOpen}
       />
 
-      {compact && sidebarOpen ? (
+      {compact ? (
         <div className="home-scrim" aria-hidden="true" onClick={() => setSidebarOpen(false)} />
       ) : null}
 

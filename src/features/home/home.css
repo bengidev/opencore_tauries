@@ -1,6 +1,7 @@
 .home-shell {
   --home-sidebar: 240px;
   --home-composer: 720px;
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   display: grid;
   grid-template-columns: var(--home-sidebar) minmax(0, 1fr);
   width: 100%;
@@ -83,12 +84,21 @@
   font-size: 13px;
   text-align: left;
   cursor: pointer;
-  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+  transition:
+    background-color 140ms var(--ease-out),
+    color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-nav-item:hover {
-  background: var(--surface-raised);
-  color: var(--text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .home-nav-item:hover {
+    background: var(--surface-raised);
+    color: var(--text-primary);
+  }
+}
+
+.home-nav-item:active {
+  transform: scale(0.99);
 }
 
 .home-nav-item:focus-visible {
@@ -127,13 +137,22 @@
   padding: 0 8px;
   border-radius: 6px;
   color: var(--text-secondary);
-  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+  transition:
+    background-color 140ms var(--ease-out),
+    color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-nav-search:hover,
-.home-nav-search:focus-within {
-  background: var(--surface-raised);
-  color: var(--text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .home-nav-search:hover,
+  .home-nav-search:focus-within {
+    background: var(--surface-raised);
+    color: var(--text-primary);
+  }
+}
+
+.home-nav-search:active {
+  transform: scale(0.99);
 }
 
 .home-nav-search:focus-within {
@@ -213,11 +232,19 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 140ms var(--ease-out);
+  transition:
+    color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-session-new:hover {
-  color: var(--text-display);
+@media (hover: hover) and (pointer: fine) {
+  .home-session-new:hover {
+    color: var(--text-display);
+  }
+}
+
+.home-session-new:active {
+  transform: scale(0.97);
 }
 
 .home-session-new:focus-visible {
@@ -305,11 +332,19 @@
   font-family: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background-color 140ms var(--ease-out);
+  transition:
+    background-color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-session-row:hover {
-  background: var(--surface-raised);
+@media (hover: hover) and (pointer: fine) {
+  .home-session-row:hover {
+    background: var(--surface-raised);
+  }
+}
+
+.home-session-row:active {
+  transform: scale(0.99);
 }
 
 .home-session-row[data-active="true"] {
@@ -404,11 +439,19 @@
   font-size: 10px;
   letter-spacing: 0.1em;
   cursor: pointer;
-  transition: color 140ms var(--ease-out);
+  transition:
+    color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-footer-action:hover {
-  color: var(--text-display);
+@media (hover: hover) and (pointer: fine) {
+  .home-footer-action:hover {
+    color: var(--text-display);
+  }
+}
+
+.home-footer-action:active {
+  transform: scale(0.97);
 }
 
 .home-footer-action:focus-visible {
@@ -461,12 +504,21 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+  transition:
+    background-color 140ms var(--ease-out),
+    color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-icon-button:hover:not(:disabled) {
-  background: var(--surface-raised);
-  color: var(--text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .home-icon-button:hover:not(:disabled) {
+    background: var(--surface-raised);
+    color: var(--text-primary);
+  }
+}
+
+.home-icon-button:active:not(:disabled) {
+  transform: scale(0.94);
 }
 
 .home-icon-button:disabled {
@@ -492,11 +544,19 @@
   font-size: 10px;
   letter-spacing: 0.1em;
   cursor: pointer;
-  transition: color 140ms var(--ease-out);
+  transition:
+    color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-theme-toggle:hover {
-  color: var(--text-display);
+@media (hover: hover) and (pointer: fine) {
+  .home-theme-toggle:hover {
+    color: var(--text-display);
+  }
+}
+
+.home-theme-toggle:active {
+  transform: scale(0.97);
 }
 
 .home-crumb {
@@ -682,12 +742,21 @@
   border-radius: 6px;
   background: transparent;
   color: var(--text-secondary);
-  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+  transition:
+    background-color 140ms var(--ease-out),
+    color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-composer-add:hover:not(:disabled) {
-  background: var(--surface-raised);
-  color: var(--text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .home-composer-add:hover:not(:disabled) {
+    background: var(--surface-raised);
+    color: var(--text-primary);
+  }
+}
+
+.home-composer-add:active:not(:disabled) {
+  transform: scale(0.94);
 }
 
 .home-composer-add:disabled {
@@ -739,12 +808,21 @@
   border-radius: 50%;
   background: var(--text-display);
   color: var(--page);
-  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+  transition:
+    background-color 140ms var(--ease-out),
+    color 140ms var(--ease-out),
+    transform 140ms var(--ease-out);
 }
 
-.home-composer-submit:hover:not(:disabled) {
-  background: var(--accent);
-  color: var(--surface);
+@media (hover: hover) and (pointer: fine) {
+  .home-composer-submit:hover:not(:disabled) {
+    background: var(--accent);
+    color: var(--surface);
+  }
+}
+
+.home-composer-submit:active:not(:disabled) {
+  transform: scale(0.92);
 }
 
 .home-composer-submit:disabled {
@@ -811,7 +889,7 @@
     inset: 0 auto 0 0;
     width: 280px;
     transform: translateX(-100%);
-    transition: transform 200ms var(--ease-out);
+    transition: transform 260ms var(--ease-drawer);
   }
 
   .home-shell[data-sidebar-open="true"] .home-sidebar {
@@ -826,6 +904,14 @@
     background: color-mix(in srgb, var(--page) 55%, transparent);
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  .home-shell[data-sidebar-open="true"] .home-scrim {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 
