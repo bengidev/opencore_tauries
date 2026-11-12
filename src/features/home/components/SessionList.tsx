@@ -44,7 +44,7 @@ export default function SessionList({ groups, activeId, onSelect, query }: Sessi
                 key={session.id}
                 type="button"
                 data-active={active}
-                aria-current={active ? "page" : undefined}
+                aria-current={active ? "true" : undefined}
                 onClick={() => onSelect(session.id)}
               >
                 <span className="home-session-line">
