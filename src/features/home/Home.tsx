@@ -162,7 +162,7 @@ export default function Home({ onReplayIntro, onSubmitPrompt }: HomeProps) {
 
   return (
     <div className="home-shell" data-sidebar-open={sidebarOpen}>
-      <HeroBackdrop />
+      <HeroBackdrop theme={theme} />
 
       <HomeSidebar
         sessions={sessions}
