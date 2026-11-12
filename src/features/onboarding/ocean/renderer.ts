@@ -17,6 +17,11 @@ const WAKE = DOT_CLASSES - 1;
 const ACCENT = "#d71921";
 const ACCENT_CHANCE = 0.012;
 
+// A ripple outlives the wake stamp: a ring of ink spreading for ~2s.
+const RIPPLE_LIFE = 1.9;
+const RIPPLE_START = 7;
+const RIPPLE_SPEED = 168;
+
 export type GlassZone = {
   x: number;
   y: number;
@@ -264,6 +269,8 @@ export class AsciiRenderer {
   private sharkDepth = new Float32Array(0);
   /** Cells darkened by a shark's shadow on the seabed. */
   private sharkShadow = new Uint8Array(0);
+  /** Rings spreading from the last few splashes, in canvas px. */
+  private ripples: { x: number; y: number; born: number }[] = [];
   private glassZones: GlassZone[] = [];
   private glassOccupied = false;
   private blurCtx: CanvasRenderingContext2D | null = null;
@@ -396,6 +403,7 @@ export class AsciiRenderer {
 
     this.markFish(world);
     this.drawDots(t);
+    this.drawRipples(t);
 
     ctx.font = `600 ${Math.round(ch * 0.74)}px ${this.fontFamily}`;
     ctx.textAlign = "center";
@@ -437,6 +445,7 @@ export class AsciiRenderer {
         this.stamp(this.energy, e.x, e.y, 3, 0.9);
       } else {
         this.stamp(this.energy, e.x, e.y, 6, 1.4);
+        this.ripples.push({ x: e.x, y: e.y, born: world.time });
       }
     }
     world.events.length = 0;
@@ -458,6 +467,42 @@ export class AsciiRenderer {
     }
     if (world.pointer.active) {
       this.stamp(energy, world.pointer.x, world.pointer.y, 1, 0.08);
+    }
+  }
+
+  /**
+   * Something broke the surface: two rings of ink spreading out and fading,
+   * on the same dot grid the wake uses so it reads as the same water.
+   */
+  private drawRipples(t: number) {
+    if (this.ripples.length === 0) return;
+    for (let i = this.ripples.length - 1; i >= 0; i--) {
+      if (t - this.ripples[i].born > RIPPLE_LIFE) this.ripples.splice(i, 1);
+    }
+    if (this.ripples.length === 0) return;
+
+    const { ctx } = this;
+    const [r, g, b] = this.ink;
+    const size = Math.max(2, Math.round(this.cw * 0.19));
+    for (const ripple of this.ripples) {
+      const age = t - ripple.born;
+      for (let ring = 0; ring < 2; ring++) {
+        const lagged = age - ring * 0.17;
+        if (lagged <= 0) continue;
+        const fade = Math.pow(1 - lagged / RIPPLE_LIFE, 1.5) * (ring === 0 ? 1 : 0.5);
+        if (fade < 0.03) continue;
+        const radius = RIPPLE_START + lagged * RIPPLE_SPEED;
+        const steps = Math.max(10, Math.round((Math.PI * 2 * radius) / 10));
+        ctx.fillStyle = `rgba(${r},${g},${b},${(0.85 * fade).toFixed(3)})`;
+        for (let s = 0; s < steps; s++) {
+          const angle = (s / steps) * Math.PI * 2;
+          // A touch of wobble keeps the ring hand-made rather than plotted.
+          const wobble = 1 + (hash3(s, Math.round(radius), ring) - 0.5) * 0.07;
+          const px = ripple.x + Math.cos(angle) * radius * wobble;
+          const py = ripple.y + Math.sin(angle) * radius * wobble * 0.88;
+          ctx.fillRect(Math.round(px), Math.round(py), size, size);
+        }
+      }
     }
   }
 
