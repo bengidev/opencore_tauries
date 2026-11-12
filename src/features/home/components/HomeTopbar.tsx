@@ -1,14 +1,22 @@
-import type { AppTheme } from "../../../shared/theme";
-import { ArrowLeftIcon, ArrowRightIcon, PanelIcon, PlusIcon } from "./icons";
+import type { RefObject } from "react";
+
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  PanelIcon,
+  PlusIcon,
+  SearchIcon,
+  SparkleIcon,
+} from "./icons";
 
 export type HomeTopbarProps = {
   title: string;
   diff: { added: number; removed: number };
   onNewSession: () => void;
   onToggleSidebar: () => void;
+  onOpenSearch: () => void;
   sidebarOpen: boolean;
-  theme: AppTheme;
-  onToggleTheme: () => void;
+  toggleRef: RefObject<HTMLButtonElement | null>;
 };
 
 export default function HomeTopbar({
@@ -16,12 +24,12 @@ export default function HomeTopbar({
   diff,
   onNewSession,
   onToggleSidebar,
+  onOpenSearch,
   sidebarOpen,
-  theme,
-  onToggleTheme,
+  toggleRef,
 }: HomeTopbarProps) {
   return (
-    <header className="home-topbar">
+    <header className="home-topbar" data-tauri-drag-region="deep">
       <div className="home-topbar-nav">
         <button className="home-icon-button" type="button" aria-label="Back" disabled>
           <ArrowLeftIcon />
@@ -31,27 +39,43 @@ export default function HomeTopbar({
         </button>
       </div>
 
-      <div className="home-crumb">
-        <span className="home-crumb-dot" aria-hidden="true" />
-        <span className="home-crumb-title" title={title}>{title}</span>
+      <div className="home-tab">
+        <SparkleIcon className="home-tab-mark" />
+        <span className="home-tab-title" title={title}>{title}</span>
       </div>
 
-      <button className="home-icon-button" type="button" aria-label="New session" onClick={onNewSession}>
+      <button
+        className="home-icon-button home-tab-new"
+        type="button"
+        aria-label="New session"
+        onClick={onNewSession}
+      >
         <PlusIcon />
       </button>
 
-      <div className="home-topbar-spacer" data-tauri-drag-region />
+      <div className="home-topbar-spacer" />
 
       <div
         className="home-diff"
         role="img"
         aria-label={`${diff.added} lines added, ${diff.removed} lines removed`}
       >
-        <span>+{diff.added}</span>
-        <span>−{diff.removed}</span>
+        <span className="home-diff-add">+{diff.added}</span>
+        <span className="home-diff-del">−{diff.removed}</span>
       </div>
 
       <button
+        className="home-icon-button"
+        type="button"
+        aria-label="Search sessions"
+        aria-keyshortcuts="Meta+K Control+K"
+        onClick={onOpenSearch}
+      >
+        <SearchIcon />
+      </button>
+
+      <button
+        ref={toggleRef}
         className="home-icon-button home-sidebar-toggle"
         type="button"
         aria-label="Toggle sidebar"
@@ -60,16 +84,6 @@ export default function HomeTopbar({
         onClick={onToggleSidebar}
       >
         <PanelIcon />
-      </button>
-
-      <button
-        className="home-theme-toggle"
-        type="button"
-        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-        aria-pressed={theme === "dark"}
-        onClick={onToggleTheme}
-      >
-        {theme === "dark" ? "DARK" : "LIGHT"}
       </button>
     </header>
   );
