@@ -91,6 +91,16 @@ export default function PopoverMenu({
     triggerRef.current?.focus({ preventScroll: true });
   }
 
+  function toggle(): void {
+    if (open) {
+      setOpen(false);
+      // Focus may be sitting on a menu item that is about to unmount.
+      triggerRef.current?.focus({ preventScroll: true });
+      return;
+    }
+    setOpen(true);
+  }
+
   const currentLabel = optionLabel(options, value);
 
   return (
@@ -99,7 +109,12 @@ export default function PopoverMenu({
       ref={wrapRef}
       onBlur={(event) => {
         // Tabbing out of the trigger/menu pair should not leave it hanging open.
-        if (!wrapRef.current?.contains(event.relatedTarget as Node | null)) {
+        // A null relatedTarget means focus fell to the document body (a press on the
+        // trigger drops it there before the click arrives); closing here would race
+        // that click and flip the menu straight back open, so let the document
+        // pointerdown listener own the outside-click case.
+        if (!event.relatedTarget) return;
+        if (!wrapRef.current?.contains(event.relatedTarget as Node)) {
           setOpen(false);
         }
       }}
@@ -111,7 +126,7 @@ export default function PopoverMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`${label}: ${currentLabel}`}
-        onClick={() => setOpen((isOpen) => !isOpen)}
+        onClick={toggle}
         onKeyDown={handleTriggerKeyDown}
       >
         {icon ? (
