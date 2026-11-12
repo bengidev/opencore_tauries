@@ -104,6 +104,19 @@ export class OceanEngine {
     if (this.reducedMotion.matches) this.drawStill();
   }
 
+  /**
+   * Ripple at a point in client (viewport) coordinates. Backdrop callers
+   * keep the canvas non-interactive, so they forward presses themselves.
+   */
+  splashAtClient(clientX: number, clientY: number) {
+    if (this.reducedMotion.matches) return;
+    const rect = this.canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+    this.world.splash(x, y);
+  }
+
   private resize() {
     const rect = this.canvas.getBoundingClientRect();
     if (rect.width < 1 || rect.height < 1) return;
